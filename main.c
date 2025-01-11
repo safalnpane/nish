@@ -19,6 +19,13 @@
 			arrayIndex += 1;							\
 		}
 
+void
+clear_screen(void) {
+    // Send ANSI escape sequence to clear the screen
+    printf("\033[H\033[J");
+    fflush(stdout);
+}
+
 
 void
 displayPrompt(void)
@@ -99,6 +106,12 @@ mainLoop(void)
 
 		if (strcmp(inputArgs[0], "exit") == 0)
 			exit(0);
+
+		if (strchr(inputArgs[0], 0x0C)) {
+			clear_screen();
+			displayPrompt();
+			continue;
+		}
 
 		char *resolvedCommandPath = resolveCommandPath(inputArgs[0]);
 		if (resolvedCommandPath == NULL) {
