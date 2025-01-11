@@ -1,5 +1,5 @@
 TARGET = nish-c
-SRC = $(wildcard *.c)
+SRC = $(wildcard src/*.c)
 OBJ = $(patsubst %.c, %.o, $(SRC))
 
 CGLAGS = -std=c11 -Wall -g -Werror -Wextra

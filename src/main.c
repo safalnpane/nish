@@ -125,6 +125,8 @@ mainLoop(void)
 			} else if (c == '\n') {
 				lineBuff[index] = '\0';
 				index = 0;
+				putchar('\n');
+				fflush(stdout);
 				break;
 			} else {
 				if (index < MAX_LINE_SIZE - 1) {
@@ -159,11 +161,12 @@ mainLoop(void)
 		char *resolvedCommandPath = resolveCommandPath(inputArgs[0]);
 		if (resolvedCommandPath == NULL) {
 			free(resolvedCommandPath);
-			fprintf(stderr, "Command '%s' not found\n", inputArgs[0]);
+			fprintf(stderr, "Command '%s' not found\n\n", inputArgs[0]);
 			continue;
 		}
 		inputArgs[0] = resolvedCommandPath;
 
+		putchar('\n');
 		pid_t pid = fork();
 		if (pid < 0) {
 			free(resolvedCommandPath);
