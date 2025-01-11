@@ -20,8 +20,6 @@
 			arrayIndex += 1;							\
 		}
 
-
-// Save the original terminal settings
 struct termios original_termios;
 
 void disable_raw_mode() {
@@ -29,16 +27,11 @@ void disable_raw_mode() {
 }
 
 void enable_raw_mode() {
-    // Get the current terminal settings
     tcgetattr(STDIN_FILENO, &original_termios);
-    atexit(disable_raw_mode); // Ensure raw mode is disabled on exit
+    atexit(disable_raw_mode);
 
     struct termios raw = original_termios;
-
-    // Disable canonical mode and echo
     raw.c_lflag &= ~(ECHO | ICANON);
-
-    // Apply the raw mode settings
     tcsetattr(STDIN_FILENO, TCSANOW, &raw);
 }
 
@@ -119,7 +112,7 @@ mainLoop(void)
 		char c;
 		int index = 0;
 
-		enable_raw_mode(); // Enable raw mode for immediate input handling
+		enable_raw_mode();
 		while(1) {
 			read(STDIN_FILENO, &c, 1);
 			if (c == 0x0C) {
