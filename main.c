@@ -107,6 +107,7 @@ mainLoop(void)
 			displayPrompt();
 			continue;
 		}
+		inputArgs[0] = resolvedCommandPath;
 
 		pid_t pid = fork();
 		if (pid < 0) {
