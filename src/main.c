@@ -128,7 +128,13 @@ mainLoop(void)
 				putchar('\n');
 				fflush(stdout);
 				break;
-			} else {
+			} else if (c == 0x7F || c == 0x08) {
+				if (index > 0) {
+                index--;
+                printf("\b \b"); // Move back, overwrite with a space, and move back again
+                fflush(stdout);
+            }
+			}else {
 				if (index < MAX_LINE_SIZE - 1) {
 					putchar(c);
 					fflush(stdout);
