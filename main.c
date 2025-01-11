@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <termios.h>
 
 #define MAX_LINE_SIZE 512
 #define MAX_INPUT_ARGS 20
@@ -18,6 +19,29 @@
 			printf("DEBUG: %s\n", array[arrayIndex]); 	\
 			arrayIndex += 1;							\
 		}
+
+
+// Save the original terminal settings
+struct termios original_termios;
+
+void disable_raw_mode() {
+    tcsetattr(STDIN_FILENO, TCSANOW, &original_termios);
+}
+
+void enable_raw_mode() {
+    // Get the current terminal settings
+    tcgetattr(STDIN_FILENO, &original_termios);
+    atexit(disable_raw_mode); // Ensure raw mode is disabled on exit
+
+    struct termios raw = original_termios;
+
+    // Disable canonical mode and echo
+    raw.c_lflag &= ~(ECHO | ICANON);
+
+    // Apply the raw mode settings
+    tcsetattr(STDIN_FILENO, TCSANOW, &raw);
+}
+
 
 void
 clear_screen(void) {
@@ -31,6 +55,7 @@ void
 displayPrompt(void)
 {
 	printf("~\n> ");
+    fflush(stdout);
 }
 
 
@@ -88,14 +113,44 @@ parse_input(const char *input, char **args)
 void
 mainLoop(void)
 {
-	displayPrompt();
-	char lineBuff[MAX_LINE_SIZE];
+	while(1) {
+		displayPrompt();
+		char lineBuff[MAX_LINE_SIZE] = {0};
+		char c;
+		int index = 0;
 
-	while(fgets(lineBuff, MAX_LINE_SIZE, stdin) != NULL) {
-		lineBuff[strlen(lineBuff) - 1] = '\0';
+		enable_raw_mode(); // Enable raw mode for immediate input handling
+		while(1) {
+			read(STDIN_FILENO, &c, 1);
+			if (c == 0x0C) {
+				clear_screen();
+				break;
+			} else if ((c == ' ' || c == '\t') && (strlen(lineBuff) == 0)) {
+				continue;
+			} else if (c == EOF) {
+				break;
+			} else if (c == '\n') {
+				lineBuff[index] = '\0';
+				index = 0;
+				break;
+			} else {
+				if (index < MAX_LINE_SIZE - 1) {
+					putchar(c);
+					fflush(stdout);
+					lineBuff[index] = c;
+					index += 1;
+				} else {
+					lineBuff[index] = '\0';
+					index = 0;
+					break;
+				}
+			}
+		}
+		disable_raw_mode();
+
 		if (strlen(lineBuff) == 0) {
 			printf("\n");
-			displayPrompt();
+			fflush(stdout);
 			continue;
 		}
 
@@ -107,17 +162,11 @@ mainLoop(void)
 		if (strcmp(inputArgs[0], "exit") == 0)
 			exit(0);
 
-		if (strchr(inputArgs[0], 0x0C)) {
-			clear_screen();
-			displayPrompt();
-			continue;
-		}
 
 		char *resolvedCommandPath = resolveCommandPath(inputArgs[0]);
 		if (resolvedCommandPath == NULL) {
 			free(resolvedCommandPath);
 			fprintf(stderr, "Command '%s' not found\n", inputArgs[0]);
-			displayPrompt();
 			continue;
 		}
 		inputArgs[0] = resolvedCommandPath;
@@ -146,15 +195,12 @@ mainLoop(void)
 			wait(&status);
 			if (WIFEXITED(status)) {
 				// printf("Child exited with status: %d\n", WEXITSTATUS(status));
+				printf("\n");
 			} else if (WIFSIGNALED(status)) {
 				printf("Child terminated by signal: %d\n", WTERMSIG(status));
 			}
 		}
-		
-		printf("\n");
-		displayPrompt();
 	}
-	printf("\n");
 }
 
 
