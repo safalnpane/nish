@@ -1,5 +1,5 @@
 /*
- * Hello world!
+ * main.c - Entrypoint for NiSH
  */
 
 #include <stdio.h>
@@ -9,6 +9,10 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include <termios.h>
+
+
+extern char **environ;
+
 
 #define MAX_LINE_SIZE 512
 #define MAX_INPUT_ARGS 20
@@ -179,12 +183,7 @@ mainLoop(void)
 			perror("Process Fork failed\n");
 			exit(1);
 		} else if (pid == 0) {
-			char *envs[] = {
-				"PATH=/bin:/usr/bin",
-				NULL,
-			};
-
-			if (execve(resolvedCommandPath, inputArgs, envs) == -1) {
+			if (execve(resolvedCommandPath, inputArgs, environ) == -1) {
 				free(resolvedCommandPath);
 				perror("Exec Failed\n");
 				exit(1);
