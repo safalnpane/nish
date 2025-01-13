@@ -10,6 +10,7 @@
 #include <errno.h>
 
 #include "input.h"
+#include "command.h"
 
 
 extern char **environ;
@@ -31,47 +32,13 @@ displayPrompt(void)
 }
 
 
-char *
-resolveCommandPath(const char *command)
-{
-	if (strchr(command, '/')) {
-		if (access(command, X_OK) == 0) {
-			return strdup(command);
-		}
-		return NULL;
-	}
-	
-	char *path = getenv("PATH");
-	if (!path) {
-		perror("ERROR: PATH environment variable is not set\n");
-		return NULL;
-	}
-
-	char *path_cpy = strdup(path);
-	char *dir = strtok(path_cpy, ":");
-	char fullPath[1024];
-	while (dir) {
-		snprintf(fullPath, (strlen(dir) * sizeof(char)) + (strlen(command) * sizeof(command)), "%s/%s", dir, command);
-		if (access(fullPath, X_OK) == 0) {
-			free(path_cpy);
-			return strdup(fullPath);
-		}
-		dir = strtok(NULL, ":");
-	}
-
-	free(path_cpy);
-	return NULL;
-}
-
-
 void
 mainLoop(void)
 {
 	while(1) {
 		displayPrompt();
 		char lineBuff[MAX_LINE_SIZE] = {0};
-		char c;
-		int index = 0;
+		int index, status = 0;
 
 		read_loop(lineBuff);
 		if (strlen(lineBuff) == 0) {
@@ -79,47 +46,24 @@ mainLoop(void)
 			continue;
 		}
 
-		char *inputArgs[MAX_INPUT_ARGS];
-		parse_input(lineBuff, inputArgs);
-		// PRINT_ARRAY(inputArgs);
-
-		if (strcmp(inputArgs[0], "exit") == 0)
+		struct cmd c = {0};
+		parse_input(lineBuff, c.args);
+		if (strcmp(c.args[0], "exit") == 0)
 			exit(0);
 
-
-		char *resolvedCommandPath = resolveCommandPath(inputArgs[0]);
-		if (resolvedCommandPath == NULL) {
-			free(resolvedCommandPath);
-			fprintf(stderr, "Command '%s' not found\n\n", inputArgs[0]);
+		c.cmd_path = resolve_cmd_path(c.args[0]);
+		if (c.cmd_path == NULL) {
+			free(c.cmd_path);
+			fprintf(stderr, "command '%s' not found\n\n", c.args[0]);
 			continue;
 		}
-		inputArgs[0] = resolvedCommandPath;
+
+		c.environ = environ;
+		status = execute_cmd(&c);
+		if (status == -1)
+			exit(1);
 
 		putchar('\n');
-		pid_t pid = fork();
-		if (pid < 0) {
-			free(resolvedCommandPath);
-			perror("Process Fork failed\n");
-			exit(1);
-		} else if (pid == 0) {
-			if (execve(resolvedCommandPath, inputArgs, environ) == -1) {
-				free(resolvedCommandPath);
-				perror("Exec Failed\n");
-				exit(1);
-			}
-			free(resolvedCommandPath);
-		} else {
-			if (resolvedCommandPath)
-				free(resolvedCommandPath);
-			int status;
-			wait(&status);
-			if (WIFEXITED(status)) {
-				// printf("Child exited with status: %d\n", WEXITSTATUS(status));
-				printf("\n");
-			} else if (WIFSIGNALED(status)) {
-				printf("Child terminated by signal: %d\n", WTERMSIG(status));
-			}
-		}
 	}
 }
 
