@@ -52,6 +52,7 @@ mainLoop(void)
 
 		c.environ = environ;
 		status = execute_cmd(&c);
+		free(c.cmd_path);
 		if (status == -1)
 			exit(1);
 
