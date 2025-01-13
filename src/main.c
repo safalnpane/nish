@@ -16,14 +16,6 @@
 extern char **environ;
 
 
-#define PRINT_ARRAY(array) 								\
-		int arrayIndex = 0; 							\
-		while(array[arrayIndex] != NULL) { 							\
-			printf("DEBUG: %s\n", array[arrayIndex]); 	\
-			arrayIndex += 1;							\
-		}
-
-
 void
 displayPrompt(void)
 {
