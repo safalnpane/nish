@@ -29,9 +29,10 @@ enable_raw_mode()
 }
 
 
-void
-read_loop(char *input_buff)
+char *
+read_line()
 {
+	char *input_buff = calloc(MAX_LINE_SIZE, sizeof(char));
 	char c;
 	int index = 0;
 	enable_raw_mode();
@@ -68,7 +69,8 @@ read_loop(char *input_buff)
 			}
 		}
 	}
-disable_raw_mode();
+	disable_raw_mode();
+	return input_buff;
 }
 
 

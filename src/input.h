@@ -6,7 +6,7 @@
 
 #include <termios.h>
 
-#define MAX_LINE_SIZE 512
+#define MAX_LINE_SIZE 1024
 #define MAX_INPUT_ARGS 20
 
 // Special Keys
@@ -30,7 +30,7 @@ static struct termios original_termios;
 
 static void disable_raw_mode();
 static void enable_raw_mode();
-void read_loop(char *input_buff);
+char *read_line();
 void parse_input(const char *input, char **args);
 
 #endif

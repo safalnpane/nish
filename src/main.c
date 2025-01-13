@@ -29,10 +29,9 @@ mainLoop(void)
 {
 	while(1) {
 		displayPrompt();
-		char lineBuff[MAX_LINE_SIZE] = {0};
 		int index, status = 0;
 
-		read_loop(lineBuff);
+		char *lineBuff = read_line();  // Please free this.
 		if (strlen(lineBuff) == 0) {
 			printf("\n");
 			continue;
@@ -40,6 +39,7 @@ mainLoop(void)
 
 		struct cmd c = {0};
 		parse_input(lineBuff, c.args);
+		free(lineBuff);  // freed!
 		if (strcmp(c.args[0], "exit") == 0)
 			exit(0);
 
