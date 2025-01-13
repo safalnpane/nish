@@ -8,14 +8,12 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <errno.h>
-#include <termios.h>
+
+#include "input.h"
 
 
 extern char **environ;
 
-
-#define MAX_LINE_SIZE 512
-#define MAX_INPUT_ARGS 20
 
 #define PRINT_ARRAY(array) 								\
 		int arrayIndex = 0; 							\
@@ -23,29 +21,6 @@ extern char **environ;
 			printf("DEBUG: %s\n", array[arrayIndex]); 	\
 			arrayIndex += 1;							\
 		}
-
-struct termios original_termios;
-
-void disable_raw_mode() {
-    tcsetattr(STDIN_FILENO, TCSANOW, &original_termios);
-}
-
-void enable_raw_mode() {
-    tcgetattr(STDIN_FILENO, &original_termios);
-    atexit(disable_raw_mode);
-
-    struct termios raw = original_termios;
-    raw.c_lflag &= ~(ECHO | ICANON);
-    tcsetattr(STDIN_FILENO, TCSANOW, &raw);
-}
-
-
-void
-clear_screen(void) {
-    // Send ANSI escape sequence to clear the screen
-    printf("\033[H\033[J");
-    fflush(stdout);
-}
 
 
 void
@@ -90,24 +65,6 @@ resolveCommandPath(const char *command)
 
 
 void
-parse_input(const char *input, char **args)
-{
-	char *token;
-	char *input_copy = strdup(input);
-	int i = 0;
-
-	token = strtok(input_copy, " \t");
-	while (token) {
-		args[i] = strdup(token);
-		token = strtok(NULL, " \t");
-		i += 1;
-	}
-	args[i] = NULL;
-	free(input_copy);
-}
-
-
-void
 mainLoop(void)
 {
 	while(1) {
@@ -116,51 +73,13 @@ mainLoop(void)
 		char c;
 		int index = 0;
 
-		enable_raw_mode();
-		while(1) {
-			read(STDIN_FILENO, &c, 1);
-			if (c == 0x0C) {
-				clear_screen();
-				break;
-			} else if ((c == ' ' || c == '\t') && (strlen(lineBuff) == 0)) {
-				continue;
-			} else if (c == EOF) {
-				break;
-			} else if (c == '\n') {
-				lineBuff[index] = '\0';
-				index = 0;
-				putchar('\n');
-				fflush(stdout);
-				break;
-			} else if (c == 0x7F || c == 0x08) {
-				if (index > 0) {
-                index--;
-                printf("\b \b"); // Move back, overwrite with a space, and move back again
-                fflush(stdout);
-            }
-			}else {
-				if (index < MAX_LINE_SIZE - 1) {
-					putchar(c);
-					fflush(stdout);
-					lineBuff[index] = c;
-					index += 1;
-				} else {
-					lineBuff[index] = '\0';
-					index = 0;
-					break;
-				}
-			}
-		}
-		disable_raw_mode();
-
+		read_loop(lineBuff);
 		if (strlen(lineBuff) == 0) {
 			printf("\n");
-			fflush(stdout);
 			continue;
 		}
 
 		char *inputArgs[MAX_INPUT_ARGS];
-
 		parse_input(lineBuff, inputArgs);
 		// PRINT_ARRAY(inputArgs);
 
