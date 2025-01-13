@@ -43,19 +43,21 @@ mainLoop(void)
 		if (strcmp(c.args[0], "exit") == 0)
 			exit(0);
 
-		c.cmd_path = resolve_cmd_path(c.args[0]);
-		if (c.cmd_path == NULL) {
-			free(c.cmd_path);
-			fprintf(stderr, "command '%s' not found\n\n", c.args[0]);
-			continue;
+		resolve_cmd(&c);
+		if (c.type == CMD_BINARY) {
+			c.path = resolve_cmd_path(c.args[0]);
+			if (c.path == NULL) {
+				free(c.path);
+				fprintf(stderr, "command '%s' not found\n\n", c.args[0]);
+				continue;
+			}
+
+			c.environ = environ;
+			status = execute_cmd(&c);
+			free(c.path);
+			if (status == -1)
+				exit(1);
 		}
-
-		c.environ = environ;
-		status = execute_cmd(&c);
-		free(c.cmd_path);
-		if (status == -1)
-			exit(1);
-
 		putchar('\n');
 	}
 }

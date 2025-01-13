@@ -12,6 +12,14 @@
 #include "command.h"
 
 
+void
+resolve_cmd(struct cmd *c)
+{
+	// TODO: logic to determine type of the command
+	c->type = CMD_BINARY;
+}
+
+
 char *
 resolve_cmd_path(const char *c)
 {
@@ -53,7 +61,7 @@ execute_cmd(struct cmd *c)
 		perror("Process Fork failed\n");
 		return 1;
 	} else if (pid == 0) {
-		if (execve(c->cmd_path, c-> args, c->environ) == -1) {
+		if (execve(c->path, c->args, c->environ) == -1) {
 			perror("Exec Failed\n");
 			return -1;
 		}
