@@ -38,8 +38,20 @@ displayPrompt(void)
 
 
 void
+shell_init(void)
+{
+	const char *term = getenv("TERM");
+	if (!term) {
+		setenv("TERM", "xterm-256color", 1);
+	}
+}
+
+
+void
 mainLoop(void)
 {
+	shell_init();
+
 	while(1) {
 		displayPrompt();
 		int index, status = 0;
