@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include <errno.h>
 
+#include "nish.h"
 #include "input.h"
 #include "command.h"
 

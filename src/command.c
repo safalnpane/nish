@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include "nish.h"
 #include "command.h"
 
 
