@@ -28,10 +28,6 @@ displayPrompt(void)
 		snprintf(path, sizeof(path), "~%s", pwd + strlen(home));
 	}
 
-	// char *last_slash = strrchr(pwd, '/');
-	// if (last_slash) {
-	// 	pwd = last_slash + 1;
-	// }
 	printf("%s\n> ", path);
     fflush(stdout);
 }
