@@ -9,16 +9,17 @@
 #define CMD_BUILTIN 0
 #define CMD_BINARY 0
 
-struct cmd {
+
+struct cmd_t {
 	char *path;
 	char *args[MAX_CMD_ARGS];
 	char **environ;
-	int type;
+	int (*handler)(struct cmd_t *c);
 };
 
-void resolve_cmd(struct cmd *c);
-char *resolve_cmd_path(const char *c);
-int execute_cmd(struct cmd *c);
+void resolve_cmd(struct cmd_t *c);
+static char *resolve_cmd_path(const char *c);
+int execute_cmd(struct cmd_t *c);
 
 
 #endif

@@ -13,14 +13,20 @@
 
 
 void
-resolve_cmd(struct cmd *c)
+resolve_cmd(struct cmd_t *c)
 {
 	// TODO: logic to determine type of the command
-	c->type = CMD_BINARY;
+	char *valid_path = resolve_cmd_path(c->args[0]);
+	if (valid_path) {
+		c->path = strdup(valid_path);
+		c->handler = execute_cmd;
+	} else {
+		c->handler = NULL;
+	}
 }
 
 
-char *
+static char *
 resolve_cmd_path(const char *c)
 {
 	if (strchr(c, '/')) {
@@ -54,7 +60,7 @@ resolve_cmd_path(const char *c)
 
 
 int
-execute_cmd(struct cmd *c)
+execute_cmd(struct cmd_t *c)
 {
 	pid_t pid = fork();
 	if (pid < 0) {

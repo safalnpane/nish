@@ -37,27 +37,25 @@ mainLoop(void)
 			continue;
 		}
 
-		struct cmd c = {0};
+		struct cmd_t c = {0};
+		c.environ = environ;
 		parse_input(lineBuff, c.args);
 		free(lineBuff);  // freed!
 		if (strcmp(c.args[0], "exit") == 0)
 			exit(0);
 
 		resolve_cmd(&c);
-		if (c.type == CMD_BINARY) {
-			c.path = resolve_cmd_path(c.args[0]);
-			if (c.path == NULL) {
-				free(c.path);
-				fprintf(stderr, "command '%s' not found\n\n", c.args[0]);
-				continue;
-			}
-
-			c.environ = environ;
-			status = execute_cmd(&c);
+		if (c.handler == NULL) {
 			free(c.path);
-			if (status == -1)
-				exit(1);
+			fprintf(stderr, "command '%s' not found\n\n", c.args[0]);
+			continue;
 		}
+
+		status = c.handler(&c);
+		free(c.path);
+		if (status == -1)
+			exit(1);
+
 		putchar('\n');
 	}
 }
