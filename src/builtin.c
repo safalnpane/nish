@@ -45,3 +45,55 @@ change_dir(struct cmd_t *c)
 		return 1;
 	}
 }
+
+
+int
+read_env_var(struct cmd_t *c)
+{
+	if (c->args[1] == NULL) {
+		fprintf(stderr, "Usage: getenv VARIBALE\n");
+		return 1;
+	}
+	const char *value = getenv(c->args[1]);
+	if (value)
+		fprintf(stdout, "%s=%s\n", c->args[1], value);
+	else
+		fprintf(stderr, "%s: Env not set. Use `setenv %s=<VALUE>`.\n", c->args[1], c->args[1]);
+}
+
+
+int
+set_env_var(struct cmd_t *c)
+{
+	char *arg = c->args[1];
+	if (arg == NULL) {
+		fprintf(stderr, "Usage: setenv <var>=<val>\n");
+		return 1;
+	}
+
+	char *equal_sign = strchr(arg, '=');
+	if (!equal_sign) {
+		fprintf(stderr, "Invalid format. Use: setenv <var>=<val>\n");
+		return 1;
+	}
+	
+	size_t var_len = equal_sign - arg;
+	if (var_len == 0) {
+		// no variable only `=<value>`
+		fprintf(stderr, "Invalid format. Use: setenv <var>=<val>\n");
+		return 1;
+	}
+
+	char var[256];
+	strncpy(var, arg, var_len);
+	var[var_len] = '\0';
+
+	char *value = equal_sign + 1;
+
+	if (setenv(var, value, 1) == 0) {
+		printf("%s = %s\n", var, value); 
+	} else {
+		perror("setenv failed");
+		return 1;
+	}
+}

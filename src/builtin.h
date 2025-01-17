@@ -17,10 +17,15 @@ struct builtin_cmd_t {
 
 
 int change_dir(struct cmd_t *c);
+int read_env_var(struct cmd_t *c);
+int set_env_var(struct cmd_t *c);
+// int unset_env_var(struct cmd_t *c);
 
 
 struct builtin_cmd_t builtins[] = {
 	{"cd", change_dir},
+	{"getenv", read_env_var},
+	{"setenv", set_env_var},
 	{NULL, NULL},
 };
 
