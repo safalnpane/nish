@@ -79,6 +79,7 @@ execute_cmd(struct cmd_t *c)
 			perror("Exec Failed\n");
 			return -1;
 		}
+		return 0;
 	} else {
 		int status;
 		wait(&status);
@@ -88,6 +89,6 @@ execute_cmd(struct cmd_t *c)
 			printf("Child terminated by signal: %d\n", WTERMSIG(status));
 			return 1;
 		}
+		return 0;
 	}
-
 }

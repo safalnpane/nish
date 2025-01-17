@@ -1,4 +1,4 @@
-TARGET = nish-c
+TARGET = nish
 SRC = $(wildcard src/*.c)
 OBJ = $(patsubst %.c, %.o, $(SRC))
 

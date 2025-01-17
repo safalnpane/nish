@@ -36,6 +36,7 @@ change_dir(struct cmd_t *c)
 		char cwd[1024];
 		if (getcwd(cwd, sizeof(cwd)) != NULL) {
 			setenv("PWD", cwd, 1);
+			return 0;
 		} else {
 			perror("getcwd failed");
 			return 1;
@@ -59,6 +60,8 @@ read_env_var(struct cmd_t *c)
 		fprintf(stdout, "%s=%s\n", c->args[1], value);
 	else
 		fprintf(stderr, "%s: Env not set. Use `setenv %s=<VALUE>`.\n", c->args[1], c->args[1]);
+
+	return 0;
 }
 
 
@@ -92,6 +95,7 @@ set_env_var(struct cmd_t *c)
 
 	if (setenv(var, value, 1) == 0) {
 		printf("%s = %s\n", var, value); 
+		return 0;
 	} else {
 		perror("setenv failed");
 		return 1;
