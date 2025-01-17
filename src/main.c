@@ -20,7 +20,19 @@ extern char **environ;
 void
 displayPrompt(void)
 {
-	printf("~\n> ");
+	static char path[1024];
+	const char *home = getenv("HOME");
+	char *pwd = getenv("PWD");
+
+	if (home && strncmp(pwd, home, strlen(home)) == 0) {
+		snprintf(path, sizeof(path), "~%s", pwd + strlen(home));
+	}
+
+	// char *last_slash = strrchr(pwd, '/');
+	// if (last_slash) {
+	// 	pwd = last_slash + 1;
+	// }
+	printf("%s\n> ", path);
     fflush(stdout);
 }
 
