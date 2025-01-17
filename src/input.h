@@ -28,8 +28,6 @@
 
 static struct termios original_termios;
 
-static void disable_raw_mode();
-static void enable_raw_mode();
 char *read_line();
 void parse_input(const char *input, char **args);
 

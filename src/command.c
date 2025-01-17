@@ -14,26 +14,6 @@
 #include "command.h"
 
 
-void
-resolve_cmd(struct cmd_t *c)
-{
-	for (int i = 0; builtins[i].name != NULL; i++) {
-		if (strcmp(builtins[i].name, c->args[0]) == 0) {
-			c->handler = builtins[i].handler;
-			return;
-		}
-	}
-
-	char *valid_path = resolve_cmd_path(c->args[0]);
-	if (valid_path) {
-		c->path = strdup(valid_path);
-		c->handler = execute_cmd;
-	} else {
-		c->handler = NULL;
-	}
-}
-
-
 static char *
 resolve_cmd_path(const char *c)
 {
@@ -64,6 +44,26 @@ resolve_cmd_path(const char *c)
 
 	free(path_cpy);
 	return NULL;
+}
+
+
+void
+resolve_cmd(struct cmd_t *c)
+{
+	for (int i = 0; builtins[i].name != NULL; i++) {
+		if (strcmp(builtins[i].name, c->args[0]) == 0) {
+			c->handler = builtins[i].handler;
+			return;
+		}
+	}
+
+	char *valid_path = resolve_cmd_path(c->args[0]);
+	if (valid_path) {
+		c->path = strdup(valid_path);
+		c->handler = execute_cmd;
+	} else {
+		c->handler = NULL;
+	}
 }
 
 

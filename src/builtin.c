@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "nish.h"
+#include "lua.h"
 
 
 int
@@ -100,4 +101,24 @@ set_env_var(struct cmd_t *c)
 		perror("setenv failed");
 		return 1;
 	}
+}
+
+
+int
+execute_nlua(struct cmd_t *c)
+{
+	if (c->args[1] == NULL) {
+		fprintf(stderr, "Usage: nlua '<inline lua script>'\n");
+		return 1;
+	}
+
+	char script[1024] = {0};
+	for (int i = 1; c->args[i] != NULL; i++) {
+		strcat(script, c->args[i]);
+		if (c->args[i + 1] != NULL) {
+			strcat(script, " ");
+		}
+	}
+
+	return execute_lua_inline(script);
 }

@@ -10,6 +10,7 @@
 #include <errno.h>
 
 #include "nish.h"
+#include "lua.h"
 #include "input.h"
 #include "command.h"
 
@@ -40,6 +41,8 @@ shell_init(void)
 	if (!term) {
 		setenv("TERM", "xterm-256color", 1);
 	}
+
+	initialize_lua();
 }
 
 
@@ -50,7 +53,7 @@ mainLoop(void)
 
 	while(1) {
 		displayPrompt();
-		int index, status = 0;
+		int status = 0;
 
 		char *lineBuff = read_line();  // Please free this.
 		if (strlen(lineBuff) == 0) {
@@ -86,5 +89,6 @@ int
 main(void)
 {
 	mainLoop();
+	close_lua();
 	return 0;
 }
