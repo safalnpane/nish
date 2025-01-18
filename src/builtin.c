@@ -10,6 +10,7 @@
 
 #include "nish.h"
 #include "lua.h"
+#include "config.h"
 
 
 int
@@ -117,6 +118,17 @@ unset_env_var(struct cmd_t *c)
 	else
 		fprintf(stderr, "'%s': Env not set. Use `setenv %s=<VALUE>`.\n", c->args[1], c->args[1]);
 
+	return 0;
+}
+
+
+int
+reload_nish_config(struct cmd_t *c)
+{
+	(void) c;
+	load_config_file();
+	fprintf(stdout, "nish: config file reloaded\n");
+	fflush(stdout);
 	return 0;
 }
 
