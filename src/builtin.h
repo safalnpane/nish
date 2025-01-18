@@ -21,7 +21,7 @@ int change_dir(struct cmd_t *c);
 // Environment Vars
 int read_env_var(struct cmd_t *c);
 int set_env_var(struct cmd_t *c);
-// int unset_env_var(struct cmd_t *c);
+int unset_env_var(struct cmd_t *c);
 
 // Lua
 int execute_nlua(struct cmd_t *c);
@@ -31,6 +31,7 @@ struct builtin_cmd_t builtins[] = {
 	{"cd", change_dir},
 	{"getenv", read_env_var},
 	{"setenv", set_env_var},
+	{"unsetenv", unset_env_var},
 	{"nlua", execute_nlua},
 	{NULL, NULL},
 };

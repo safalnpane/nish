@@ -105,6 +105,23 @@ set_env_var(struct cmd_t *c)
 
 
 int
+unset_env_var(struct cmd_t *c)
+{
+	if (c->args[1] == NULL) {
+		fprintf(stderr, "Usage: unsetenv VARIBALE\n");
+		return 1;
+	}
+	if (unsetenv(c->args[1]) == 0)
+		fprintf(stdout, "'%s' is unset.\n", c->args[1]);
+	else
+		fprintf(stderr, "'%s': Env not set. Use `setenv %s=<VALUE>`.\n", c->args[1], c->args[1]);
+
+	return 0;
+}
+
+
+
+int
 execute_nlua(struct cmd_t *c)
 {
 	if (c->args[1] == NULL) {
