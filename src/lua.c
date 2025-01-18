@@ -12,6 +12,7 @@ lua_State *L = NULL;
 luaL_Reg nish_functions[] = {
 	{"getenv", lua_getenv },
 	{"setenv", lua_setenv },
+	{"unsetenv", lua_unsetenv },
 	{NULL, NULL },
 };
 
@@ -69,6 +70,19 @@ lua_setenv(lua_State *L)
 	return 1;
 }
 
+
+int
+lua_unsetenv(lua_State *L)
+{
+	const char *var = luaL_checkstring(L, 1);
+	
+	if (unsetenv(var) == 0)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+
+	return 1;
+}
 
 void
 setup_nish_obj(lua_State *L)

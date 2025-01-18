@@ -15,6 +15,7 @@ int execute_lua_inline(const char *script);
 
 int lua_getenv(lua_State *L);
 int lua_setenv(lua_State *L);
+int lua_unsetenv(lua_State *L);
 
 void setup_nish_obj(lua_State *L);
 
