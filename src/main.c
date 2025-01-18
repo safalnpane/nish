@@ -26,10 +26,10 @@ displayPrompt(void)
 	char *pwd = getenv("PWD");
 
 	if (home && strncmp(pwd, home, strlen(home)) == 0) {
-		snprintf(path, sizeof(path), "~%s", pwd + strlen(home));
+		snprintf(path, sizeof(path), "\e[1;36m~%s\e[m", pwd + strlen(home));
 	}
 
-	printf("%s\n> ", path);
+	printf("%s\n\e[1;32m❯\e[m ", path);
     fflush(stdout);
 }
 
