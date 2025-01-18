@@ -41,6 +41,18 @@ execute_lua_inline(const char *script)
 
 
 int
+execute_lua_file(const char *path)
+{
+	if (luaL_dofile(L, path) != LUA_OK) {
+		fprintf(stderr, "nlua: error executing file '%s': %s\n", path, lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return 0;
+	}
+	return 1;
+}
+
+
+int
 lua_getenv(lua_State *L)
 {
 	const char *var = luaL_checkstring(L, 1);

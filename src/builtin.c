@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "nish.h"
 #include "lua.h"
@@ -120,22 +121,40 @@ unset_env_var(struct cmd_t *c)
 }
 
 
+static int file_exists(const char *path) {
+    struct stat buffer;
+    return (stat(path, &buffer) == 0);
+}
+
 
 int
 execute_nlua(struct cmd_t *c)
 {
 	if (c->args[1] == NULL) {
-		fprintf(stderr, "Usage: nlua '<inline lua script>'\n");
+		fprintf(stderr, "Usage: nlua '<inline lua>' or\n");
+		fprintf(stderr, "       nlua '<lua file path>'\n");
 		return 1;
 	}
 
-	char script[1024] = {0};
+	// combine all args into one string
+	char args[1024] = {0};
 	for (int i = 1; c->args[i] != NULL; i++) {
-		strcat(script, c->args[i]);
+		strcat(args, c->args[i]);
 		if (c->args[i + 1] != NULL) {
-			strcat(script, " ");
+			strcat(args, " ");
 		}
 	}
 
-	return execute_lua_inline(script);
+	// check if the string ends with `.lua`
+	size_t args_len = strlen(args);
+	if (args_len > 4 && strcmp(args + args_len - 4, ".lua") == 0) {
+		if (file_exists(args)) {
+			return execute_lua_file(args);
+		} else {
+			fprintf(stderr, "nlua: '%s' file is not found.\n", args);
+			return 1;
+		}
+	} else {
+		return execute_lua_inline(args);
+	}
 }

@@ -12,6 +12,7 @@
 void initialize_lua();
 void close_lua();
 int execute_lua_inline(const char *script);
+int execute_lua_file(const char *path);
 
 int lua_getenv(lua_State *L);
 int lua_setenv(lua_State *L);
