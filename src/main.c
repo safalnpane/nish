@@ -13,6 +13,7 @@
 #include "lua.h"
 #include "input.h"
 #include "command.h"
+#include "config.h"
 
 
 extern char **environ;
@@ -29,8 +30,8 @@ displayPrompt(void)
 		snprintf(path, sizeof(path), "\e[1;36m~%s\e[m", pwd + strlen(home));
 	}
 
-	printf("%s\n\e[1;32m❯\e[m ", path);
-    fflush(stdout);
+	fprintf(stdout, "%s\n\e[1;32m❯\e[m ", path);
+	fflush(stdout);
 }
 
 
@@ -43,6 +44,7 @@ shell_init(void)
 	}
 
 	initialize_lua();
+	load_config_file();
 }
 
 
