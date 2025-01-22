@@ -1,19 +1,20 @@
 TARGET = nish
+CC = cc
 SRC = $(wildcard src/*.c)
-OBJ = $(patsubst %.c, %.o, $(SRC))
+OBJ_DIR = obj
+OBJ = $(patsubst src/%.c, $(OBJ_DIR)/%.o, $(SRC))
 
-CFLAGS = -std=c11 -Wall -g -Werror -Wextra $(shell pkg-config --cflags lua)
+CFLAGS = -std=c11 -Wall -g -Werror -Wextra -D_POSIX_C_SOURCE=200809L $(shell pkg-config --cflags lua)
 LDFLAGS = $(shell pkg-config --libs lua)
-
 
 default: clean $(TARGET)
 
 clean:
-	rm -f $(TARGET) $(OBJ)
+	rm -rf $(TARGET) $(OBJ_DIR)
 
 $(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) 
 
-
-*.o: *.c
-	$(CC) $(CFLAGS) -c $^
+$(OBJ_DIR)/%.o: src/%.c
+	mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c -o $@ $<

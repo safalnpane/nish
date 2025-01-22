@@ -10,6 +10,7 @@
 
 #include "input.h"
 
+struct termios original_termios;
 
 static void
 disable_raw_mode() {

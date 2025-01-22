@@ -26,7 +26,6 @@
 #define CRSR_MV_RIGHT "\033[#C"
 #define CRSR_MV_LEFT "\033[#D"
 
-static struct termios original_termios;
 
 char *read_line();
 void parse_input(const char *input, char **args);
