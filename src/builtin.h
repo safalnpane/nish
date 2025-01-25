@@ -29,6 +29,9 @@ int reload_nish_config(struct cmd_t *c);
 // Lua
 int execute_nlua(struct cmd_t *c);
 
+// Alias
+int cmd_create_alias(struct cmd_t *c);
+
 
 struct builtin_cmd_t builtins[] = {
 	{"cd", change_dir},
@@ -37,6 +40,7 @@ struct builtin_cmd_t builtins[] = {
 	{"unsetenv", unset_env_var},
 	{"reload", reload_nish_config},
 	{"nlua", execute_nlua},
+	{"alias", cmd_create_alias},
 	{NULL, NULL},
 };
 

@@ -11,6 +11,7 @@
 #include "nish.h"
 #include "lua.h"
 #include "config.h"
+#include "alias.h"
 
 
 int
@@ -171,5 +172,42 @@ execute_nlua(struct cmd_t *c)
 		}
 	} else {
 		return execute_lua_inline(args);
+	}
+}
+
+
+int
+cmd_create_alias(struct cmd_t *c)
+{
+	char *arg = c->args[1];
+	if (arg == NULL) {
+		fprintf(stderr, "Usage: alias <name>=<target>\n");
+		return 1;
+	}
+
+	char *equal_sign = strchr(arg, '=');
+	if (!equal_sign) {
+		fprintf(stderr, "Invalid format. Use: alias <name>=<target>\n");
+		return 1;
+	}
+	
+	size_t var_len = equal_sign - arg;
+	if (var_len == 0) {
+		// no variable only `=<value>`
+		fprintf(stderr, "Invalid format. Use: alias <name>=<target>\n");
+		return 1;
+	}
+
+	char var[256];
+	strncpy(var, arg, var_len);
+	var[var_len] = '\0';
+
+	char *value = equal_sign + 1;
+	if (create_alias(var, value) == 0) {
+		printf("%s = %s\n", var, value); 
+		return 0;
+	} else {
+		perror("create_alias failed");
+		return 1;
 	}
 }
