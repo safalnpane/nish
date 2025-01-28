@@ -8,6 +8,7 @@
 
 #define MAX_LINE_SIZE 1024
 #define MAX_INPUT_ARGS 20
+#define MAX_ARG_LEN 255
 
 // Special Keys
 #define CTRL_L 0x0C

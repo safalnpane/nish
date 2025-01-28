@@ -73,35 +73,14 @@ int
 set_env_var(struct cmd_t *c)
 {
 	char *arg = c->args[1];
+	char *val = c->args[2];
 	if (arg == NULL) {
-		fprintf(stderr, "Usage: setenv <var>=<val>\n");
+		fprintf(stderr, "Usage: setenv <var> <val>\n");
 		return 1;
 	}
 
-	char *equal_sign = strchr(arg, '=');
-	if (!equal_sign) {
-		fprintf(stderr, "Invalid format. Use: setenv <var>=<val>\n");
-		return 1;
-	}
-	
-	size_t var_len = equal_sign - arg;
-	if (var_len == 0) {
-		// no variable only `=<value>`
-		fprintf(stderr, "Invalid format. Use: setenv <var>=<val>\n");
-		return 1;
-	}
-
-	char var[256];
-	strncpy(var, arg, var_len);
-	var[var_len] = '\0';
-
-	char *value = equal_sign + 1;
-	size_t value_len = strlen(value);
-	if ((value[0] == '"') && (value[value_len] != '"')) {
-
-	}
-	if (setenv(var, value, 1) == 0) {
-		printf("%s = %s\n", var, value); 
+	if (setenv(arg, val, 1) == 0) {
+		printf("%s = %s\n", arg, val); 
 		return 0;
 	} else {
 		perror("setenv failed");
@@ -120,7 +99,7 @@ unset_env_var(struct cmd_t *c)
 	if (unsetenv(c->args[1]) == 0)
 		fprintf(stdout, "'%s' is unset.\n", c->args[1]);
 	else
-		fprintf(stderr, "'%s': Env not set. Use `setenv %s=<VALUE>`.\n", c->args[1], c->args[1]);
+		fprintf(stderr, "'%s': Env not set. Use `setenv %s <VALUE>`.\n", c->args[1], c->args[1]);
 
 	return 0;
 }
@@ -179,35 +158,37 @@ execute_nlua(struct cmd_t *c)
 int
 cmd_create_alias(struct cmd_t *c)
 {
-	char *arg = c->args[1];
-	if (arg == NULL) {
-		fprintf(stderr, "Usage: alias <name>=<target>\n");
+	if (c->args[1] == NULL) {
+		fprintf(stderr, "Usage: alias <name> <target>\n");
 		return 1;
 	}
 
-	char *equal_sign = strchr(arg, '=');
-	if (!equal_sign) {
-		fprintf(stderr, "Invalid format. Use: alias <name>=<target>\n");
-		return 1;
-	}
-	
-	size_t var_len = equal_sign - arg;
-	if (var_len == 0) {
-		// no variable only `=<value>`
-		fprintf(stderr, "Invalid format. Use: alias <name>=<target>\n");
-		return 1;
-	}
-
-	char var[256];
-	strncpy(var, arg, var_len);
-	var[var_len] = '\0';
-
-	char *value = equal_sign + 1;
-	if (create_alias(var, value) == 0) {
-		printf("%s = %s\n", var, value); 
+	if (create_alias(c->args[1], c->args[2]) == 0) {
 		return 0;
 	} else {
-		perror("create_alias failed");
+		fprintf(stdout, "create_alias failed");
+		fflush(stdout);
 		return 1;
 	}
+}
+
+
+int
+cmd_get_alias(struct cmd_t *c)
+{
+	if (c->args[1] == NULL) {
+		fprintf(stderr, "Usage: expandalias <name>\n");
+		fflush(stdout);
+		return 1;
+	}
+
+	char *val = get_alias(c->args[1]);
+	if (!val) {
+		printf("Alias:: '%s' not found!\n", c->args[1]);
+		fflush(stdout);
+		return 1;
+	}
+
+	printf("%s\n", val); 
+	return 0;
 }

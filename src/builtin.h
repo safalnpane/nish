@@ -31,6 +31,7 @@ int execute_nlua(struct cmd_t *c);
 
 // Alias
 int cmd_create_alias(struct cmd_t *c);
+int cmd_get_alias(struct cmd_t *c);
 
 
 struct builtin_cmd_t builtins[] = {
@@ -41,6 +42,7 @@ struct builtin_cmd_t builtins[] = {
 	{"reload", reload_nish_config},
 	{"nlua", execute_nlua},
 	{"alias", cmd_create_alias},
+	{"expandalias", cmd_get_alias},
 	{NULL, NULL},
 };
 

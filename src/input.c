@@ -82,12 +82,52 @@ parse_input(const char *input, char **args)
 	char *input_copy = strdup(input);
 	int i = 0;
 
-	token = strtok(input_copy, " \t");
+	token = strtok(input_copy, " ");
 	while (token) {
+		if (i == 0) {
+			// First token is always a `command`
+			args[i] = strdup(token);
+			token = strtok(NULL, " ");
+			i += 1;
+			continue;
+		}
+
+		// Build rest of the arguments
+		if (token[0] == '"') {
+			char new_arg[MAX_ARG_LEN] = {0};
+			int end_quote_found = 0;
+			strcat(new_arg, token + 1);
+			while (!end_quote_found) {
+				token = strtok(NULL, " ");
+				size_t token_len = strlen(token);
+				if (token[token_len - 1] == '"') {
+					token[token_len - 1] = '\0';
+					strcat(new_arg, " ");
+					strcat(new_arg, token);
+					end_quote_found = 1;
+					break;
+				}
+			}
+			
+			if (!end_quote_found) {
+				// Likely a syntax error
+				free(input_copy);
+				fprintf(stderr, "Syntax error. Did you forgot '\"'?\n");
+				exit(-1);
+				break;
+			}
+
+			args[i] = strdup(new_arg);
+			token = strtok(NULL, " ");
+			i += 1;
+			continue;
+		}
+
 		args[i] = strdup(token);
-		token = strtok(NULL, " \t");
+		token = strtok(NULL, " ");
 		i += 1;
 	}
+
 	args[i] = NULL;
 	free(input_copy);
 } 
