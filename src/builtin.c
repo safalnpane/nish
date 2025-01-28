@@ -158,7 +158,7 @@ execute_nlua(struct cmd_t *c)
 int
 cmd_create_alias(struct cmd_t *c)
 {
-	if (c->args[1] == NULL) {
+	if (c->args[1] == NULL || c->args[2] == NULL) {
 		fprintf(stderr, "Usage: alias <name> <target>\n");
 		return 1;
 	}
