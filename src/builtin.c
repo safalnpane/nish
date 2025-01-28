@@ -26,7 +26,7 @@ change_dir(struct cmd_t *c)
 		// Take me to previous PWD
 		path = getenv("OLDPWD");
 		if (!path) {
-			fprintf(stderr, "cd: OLDPWD not set\n");
+			fprintf(stderr, "cd:: error: OLDPWD not set\n");
 			return 1;
 		}
 	} else if ((path[0] == '~') && (path[1] == '/')) {
@@ -42,11 +42,11 @@ change_dir(struct cmd_t *c)
 			setenv("PWD", cwd, 1);
 			return 0;
 		} else {
-			perror("getcwd failed");
+			perror("cd:: error: getcwd failed");
 			return 1;
 		}
 	} else {
-		perror("cd");
+		perror("cd:: error:");
 		return 1;
 	}
 }
@@ -61,9 +61,11 @@ read_env_var(struct cmd_t *c)
 	}
 	const char *value = getenv(c->args[1]);
 	if (value)
-		fprintf(stdout, "%s=%s\n", c->args[1], value);
+		fprintf(stdout, "getenv:: %s=%s\n", c->args[1], value);
+		fflush(stdout);
 	else
-		fprintf(stderr, "%s: Env not set. Use `setenv %s=<VALUE>`.\n", c->args[1], c->args[1]);
+		fprintf(stderr, "getenv:: error: '%s' Env not set. Use `setenv %s=<VALUE>`.\n", c->args[1], c->args[1]);
+		fflush(stdout);
 
 	return 0;
 }
@@ -80,10 +82,10 @@ set_env_var(struct cmd_t *c)
 	}
 
 	if (setenv(arg, val, 1) == 0) {
-		printf("%s = %s\n", arg, val); 
+		printf("setenv:: %s = %s\n", arg, val); 
 		return 0;
 	} else {
-		perror("setenv failed");
+		perror("setenv:: error: failed");
 		return 1;
 	}
 }
@@ -99,7 +101,7 @@ unset_env_var(struct cmd_t *c)
 	if (unsetenv(c->args[1]) == 0)
 		fprintf(stdout, "'%s' is unset.\n", c->args[1]);
 	else
-		fprintf(stderr, "'%s': Env not set. Use `setenv %s <VALUE>`.\n", c->args[1], c->args[1]);
+		fprintf(stderr, "unset:: error: Env not set. Use `setenv %s <VALUE>`.\n", c->args[1], c->args[1]);
 
 	return 0;
 }
@@ -110,7 +112,7 @@ reload_nish_config(struct cmd_t *c)
 {
 	(void) c;
 	load_config_file();
-	fprintf(stdout, "nish: config file reloaded\n");
+	fprintf(stdout, "nish:: config file reloaded!\n");
 	fflush(stdout);
 	return 0;
 }
@@ -146,7 +148,7 @@ execute_nlua(struct cmd_t *c)
 		if (file_exists(args)) {
 			return execute_lua_file(args);
 		} else {
-			fprintf(stderr, "nlua: '%s' file is not found.\n", args);
+			fprintf(stderr, "nlua:: error: '%s' file is not found.\n", args);
 			return 1;
 		}
 	} else {
@@ -160,13 +162,16 @@ cmd_create_alias(struct cmd_t *c)
 {
 	if (c->args[1] == NULL || c->args[2] == NULL) {
 		fprintf(stderr, "Usage: alias <name> <target>\n");
+		fflush(stdout);
 		return 1;
 	}
 
 	if (create_alias(c->args[1], c->args[2]) == 0) {
+		fprintf(stdout, "alias:: %s = \"%s\"\n", c->args[1], c->args[2]);
+		fflush(stdout);
 		return 0;
 	} else {
-		fprintf(stdout, "create_alias failed");
+		fprintf(stdout, "alias:: error: create failed\n");
 		fflush(stdout);
 		return 1;
 	}
@@ -184,11 +189,12 @@ cmd_get_alias(struct cmd_t *c)
 
 	char *val = get_alias(c->args[1]);
 	if (!val) {
-		printf("Alias:: '%s' not found!\n", c->args[1]);
+		printf("alias:: error: '%s' not found!\n", c->args[1]);
 		fflush(stdout);
 		return 1;
 	}
 
 	printf("%s\n", val); 
+	fflush(stdout);
 	return 0;
 }
