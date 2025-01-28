@@ -60,12 +60,14 @@ read_env_var(struct cmd_t *c)
 		return 1;
 	}
 	const char *value = getenv(c->args[1]);
-	if (value)
+	if (value) {
 		fprintf(stdout, "getenv:: %s=%s\n", c->args[1], value);
 		fflush(stdout);
-	else
+	}
+	else {
 		fprintf(stderr, "getenv:: error: '%s' Env not set. Use `setenv %s=<VALUE>`.\n", c->args[1], c->args[1]);
 		fflush(stdout);
+	}
 
 	return 0;
 }
@@ -101,7 +103,7 @@ unset_env_var(struct cmd_t *c)
 	if (unsetenv(c->args[1]) == 0)
 		fprintf(stdout, "'%s' is unset.\n", c->args[1]);
 	else
-		fprintf(stderr, "unset:: error: Env not set. Use `setenv %s <VALUE>`.\n", c->args[1], c->args[1]);
+		fprintf(stderr, "unset:: error: Env not set. Use `setenv %s <VALUE>`.\n", c->args[1]);
 
 	return 0;
 }
