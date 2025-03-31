@@ -11,6 +11,7 @@
 
 #include "nish.h"
 #include "builtin.h"
+#include "alias.h"
 #include "command.h"
 
 
@@ -53,6 +54,15 @@ resolve_cmd(struct cmd_t *c)
 	for (int i = 0; builtins[i].name != NULL; i++) {
 		if (strcmp(builtins[i].name, c->args[0]) == 0) {
 			c->handler = builtins[i].handler;
+			c->type = BUILTIN;
+			return;
+		}
+	}
+
+	for (int i = 0; aliases[i].name != NULL; i++) {
+		if (strcmp(aliases[i].name, c->args[0]) == 0) {
+			c->handler = NULL;
+			c->type = ALIAS;
 			return;
 		}
 	}
@@ -60,6 +70,7 @@ resolve_cmd(struct cmd_t *c)
 	char *valid_path = resolve_cmd_path(c->args[0]);
 	if (valid_path) {
 		c->path = strdup(valid_path);
+		c->type = BINARY;
 		c->handler = execute_cmd;
 	} else {
 		c->handler = NULL;

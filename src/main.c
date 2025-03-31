@@ -71,14 +71,20 @@ mainLoop(void)
 			exit(0);
 
 		resolve_cmd(&c);
-		if (c.handler == NULL) {
-			free(c.path);
-			fprintf(stderr, "command '%s' not found\n\n", c.args[0]);
-			continue;
+		switch (c.type) {
+			case BUILTIN:
+				status = c.handler(&c);
+				free(c.path);
+			case BINARY:
+				status = c.handler(&c);
+				free(c.path);
+			case ALIAS:
+			default:
+				free(c.path);
+				fprintf(stderr, "command '%s' not found\n\n", c.args[0]);
+				continue;
 		}
 
-		status = c.handler(&c);
-		free(c.path);
 		if (status == -1)
 			exit(1);
 
